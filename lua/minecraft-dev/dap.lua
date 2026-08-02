@@ -1,13 +1,11 @@
 local cfg = require('minecraft-dev.config')
 local util = require('minecraft-dev.util')
 
-local dap
+local dap = require('dap')
 
 local M = {}
 
-function M.setup(opts)
-  dap = opts.dap
-
+function M.setup()
   dap.adapters['fabric-loom'] = function(callback, config)
     vim.system({ './gradlew', '--console', 'plain', config.taskName, '--debug-jvm' }, {
       env = cfg.options.env,
