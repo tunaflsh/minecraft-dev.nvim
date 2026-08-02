@@ -29,7 +29,7 @@ function M.setup()
     end
 
     local last = ''
-    local chan_id = vim.fn.jobstart({ './gradlew', '--console', 'colored', config.taskName, '--debug-jvm' }, {
+    local chan_id = vim.fn.jobstart({ root_dir .. '/gradlew', '--console', 'colored', config.taskName, '--debug-jvm' }, {
       env = cfg.options.env,
       cwd = root_dir,
       stdout_buffered = false,
