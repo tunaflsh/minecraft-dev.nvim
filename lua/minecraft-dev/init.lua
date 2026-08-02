@@ -15,7 +15,8 @@ function M.setup(opts)
   end
 
   if cfg.options.quickfixtextfunc then
-    vim.o.quickfixtextfunc = "v:lua.require('minecraft-dev').quickfixtextfunc"
+    _G.mcqftf = M.quickfixtextfunc
+    vim.o.quickfixtextfunc = "v:lua.mcqftf"
   end
 
   dap.setup()
