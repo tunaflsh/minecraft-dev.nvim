@@ -1,4 +1,5 @@
 local cfg = require('minecraft-dev.config')
+local util = require('minecraft-dev.util')
 
 local M = {}
 
@@ -20,6 +21,12 @@ function M.check()
   local bundles = (cfg.options.jdtls_config.init_options or {}).bundles
   ---@cast bundles string[]|vim.NIL
 
+  if vim.uv.fs_stat(util.find_root(0) .. '/.nvim/launch.json') then
+    vim.health.ok('run configurations: .nvim/launch.json')
+  else
+    vim.health.warn('missing run configurations: Execute `./gradlew neovim`')
+  end
+
   vim.health.start('minecraft-dev: nvim-jdtls')
   if pcall(require, 'jdtls') then
     vim.health.ok('')
@@ -37,17 +44,16 @@ function M.check()
       'https://codeberg.org/mfussenegger/nvim-dap',
     }, '\n'))
   else
-    if bundles and found(bundles, 'com.microsoft.java.debug.plugin') then
-      vim.health.ok('java-debug-adapter')
-    else
-      vim.health.error(table.concat({
-        'java-debug-adapter not found',
-        'https://github.com/microsoft/java-debug',
-        'Install via mason.nvim or directly',
-      }, '\n'))
-    end
-    if
-        bundles
+    local _found = bundles and found(bundles, 'com.microsoft.java.debug.plugin')
+    local status = _found and ' ' or ' not '
+    vim.health.info(table.concat(vim.iter({
+      'java-debug-adapter' .. status .. 'found',
+      not _found and 'https://github.com/microsoft/java-debug' or nil,
+      'This plugin lets you use .vscode/launch.json (not recommended).',
+      'The built-in debug adapter launches the game via gradlew directly to ensure consistency with Gradle.'
+    }):totable(), '\n'))
+
+    _found = bundles
         and found(bundles, {
           'com.microsoft.java.test.plugin',
           'junit-jupiter-api',
@@ -69,11 +75,11 @@ function M.check()
         })
         and not found(bundles, 'com.microsoft.java.test.runner-jar-with-dependencies.jar')
         and not found(bundles, 'jacocoagent.jar')
-    then
-      vim.health.ok('java-test')
+    if _found then
+      vim.health.info('java-test found')
     else
-      vim.health.warn(table.concat({
-        'java-test',
+      vim.health.info(table.concat({
+        'java-test not found',
         'https://github.com/microsoft/vscode-java-test',
         'Install via mason.nvim or directly',
         'Refer to https://codeberg.org/mfussenegger/nvim-jdtls#vscode-java-test-configuration',
@@ -81,9 +87,13 @@ function M.check()
     end
   end
 
-  vim.health.start('minecraft-dev: java-deps')
+  vim.health.start('minecraft-dev: java-deps.nvim')
   if not pcall(require, 'java-deps') then
-    vim.health.info('java-deps not found')
+    vim.health.info(table.concat({
+      'java-deps.nvim not found',
+      'https://github.com/JavaHello/java-deps.nvim',
+      'https://github.com/g0ne150/java-deps.nvim',
+    }, '\n'))
   elseif bundles and found(bundles, 'com.microsoft.jdtls.ext.core') then
     vim.health.ok('vscode-java-dependency')
   else
