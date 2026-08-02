@@ -1,6 +1,6 @@
 # minecraft-dev.nvim
 
-A Neovim plugin designed to streamline Minecraft mod development (Fabric Loom) with `nvim-jdtls` and `nvim-dap`.
+A Neovim plugin designed to streamline Minecraft mod development with Fabric Loom.
 
 ## Features
 
