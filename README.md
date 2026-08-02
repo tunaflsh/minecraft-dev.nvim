@@ -122,7 +122,7 @@ local jdtls = require('jdtls')
 mcdev.setup({
   statusline = vim.o.statusline,
   -- See api-win_config
-  win_config = { vertical = true, split = 'right' },
+  win_config = { win = -1, split = 'right' }, -- split far right
   -- Envars for the Minecraft instance can be set here
   env = { -- E.g. to ensure Minecraft is running on a NVIDIA dGPU
     __NV_PRIME_RENDER_OFFLOAD = 1,
