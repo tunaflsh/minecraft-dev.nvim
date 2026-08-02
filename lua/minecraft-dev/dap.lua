@@ -8,10 +8,10 @@ local M = {}
 function M.setup()
   dap.adapters['fabric-loom'] = function(callback, config)
     local root_dir = util.find_root(0)
+    local old_win = vim.api.nvim_get_current_win()
 
     local name = '[minecraft-dev] ' .. config.taskName
-    local buf = vim.fn.bufnr(name, 1)
-    local old_win = vim.api.nvim_get_current_win()
+    local buf = vim.api.nvim_create_buf(false, true)
     local win = vim.iter(vim.api.nvim_list_wins())
         :find(function(winid)
           return vim.startswith(vim.fn.bufname(vim.api.nvim_win_get_buf(winid)), '[minecraft-dev] ')
@@ -19,14 +19,12 @@ function M.setup()
 
     if win then
       vim.api.nvim_set_current_win(win)
+    elseif cfg.options.win_config then
+      win = vim.api.nvim_open_win(buf, true, cfg.options.win_config)
     else
-      if cfg.options.win_config then
-        win = vim.api.nvim_open_win(buf, true, cfg.options.win_config)
-      else
-        win = old_win
-      end
-      vim.api.nvim_win_set_buf(win, buf)
+      win = old_win
     end
+    vim.api.nvim_win_set_buf(win, buf)
 
     local last = ''
     local chan_id = vim.fn.jobstart({ root_dir .. '/gradlew', '--console', 'colored', config.taskName, '--debug-jvm' }, {
@@ -55,6 +53,7 @@ function M.setup()
     elseif chan_id == -1 then
       vim.notify('Could not start fabric-loom debugee: ./gradlew is not executable')
     else
+      pcall(vim.api.nvim_buf_delete, vim.fn.bufnr(name), { force = true })
       vim.api.nvim_buf_set_name(buf, name)
       if not dap.defaults.fallback.focus_terminal then
         vim.api.nvim_set_current_win(old_win)
