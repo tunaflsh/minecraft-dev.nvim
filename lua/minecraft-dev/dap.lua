@@ -9,7 +9,8 @@ function M.setup()
   dap.adapters['fabric-loom'] = function(callback, config)
     local root_dir = util.find_root(0)
 
-    local buf = vim.api.nvim_create_buf(false, true)
+    local name = '[minecraft-dev] ' .. config.taskName
+    local buf = vim.fn.bufnr(name, 1)
     if cfg.options.win_config then
       vim.api.nvim_open_win(buf, true, cfg.options.win_config)
     end
@@ -38,8 +39,11 @@ function M.setup()
       vim.notify('Could not start fabric-loom debugee: invalid arguments')
     elseif chan_id == -1 then
       vim.notify('Could not start fabric-loom debugee: ./gradlew is not executable')
-    elseif not dap.defaults.fallback.focus_terminal then
-      vim.cmd.wincmd('p')
+    else
+      vim.api.nvim_buf_set_name(buf, name)
+      if not dap.defaults.fallback.focus_terminal then
+        vim.cmd.wincmd('p')
+      end
     end
   end
 
