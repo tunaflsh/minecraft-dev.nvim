@@ -1,3 +1,11 @@
+" Vim syntax for java bytecode in generated from OW2 ASM Textifier.
+"
+" This file was generated with the help of GPT-5.6 Terra
+" based on https://github.com/mcgambing/Java-Bytecode
+"
+" Copied from https://github.com/tunaflsh/asm-java.vim
+" Copyright (c) 2026 tunaflsh
+" Licensed under the MIT License.
 if exists("b:current_syntax")
   finish
 endif
