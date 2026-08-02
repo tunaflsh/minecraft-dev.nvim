@@ -52,15 +52,15 @@ function M.check()
       'https://codeberg.org/mfussenegger/nvim-dap',
     }, '\n'))
   else
-    ok = bundles and found(bundles, 'com.microsoft.java.debug.plugin')
-    vim.health.info(table.concat(vim.iter({
-      '*java-debug-adapter*' .. (ok and ' ' or ' not ') .. 'found',
-      not ok and 'Install via mason.nvim or directly' or nil,
-      not ok and 'https://github.com/microsoft/java-debug' or nil,
-      'This plugin lets you use .vscode/launch.json (not recommended).',
-      'The built-in debug adapter launches the game via gradlew directly to ensure',
-      'consistency with Gradle.',
-    }):totable(), '\n'))
+    if bundles and found(bundles, 'com.microsoft.java.debug.plugin') then
+      vim.health.ok('*java-debug-adapter*')
+    else
+      vim.health.error(table.concat({
+        '*java-debug-adapter* not found',
+        'Install via mason.nvim or directly',
+        'https://github.com/microsoft/java-debug',
+      }, '\n'))
+    end
 
     ok = bundles
         and found(bundles, {

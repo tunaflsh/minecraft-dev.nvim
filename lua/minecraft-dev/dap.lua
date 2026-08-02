@@ -7,16 +7,40 @@ local M = {}
 
 function M.setup()
   dap.adapters['fabric-loom'] = function(callback, config)
-    vim.system({ './gradlew', '--console', 'plain', config.taskName, '--debug-jvm' }, {
+    local root_dir = util.find_root(0)
+
+    local buf = vim.api.nvim_create_buf(false, true)
+    if cfg.options.win_config then
+      vim.api.nvim_open_win(buf, true, cfg.options.win_config)
+    end
+    vim.api.nvim_win_set_buf(0, buf)
+
+    local last = ''
+    local chan_id = vim.fn.jobstart({ './gradlew', '--console', 'colored', config.taskName, '--debug-jvm' }, {
       env = cfg.options.env,
-      cwd = util.find_root(0),
-      stdout = function(err, data)
-        local port = data and data:match('Listening for transport dt_socket at address: (%d+)')
-        if port then
-          callback({ type = 'server', port = port })
+      cwd = root_dir,
+      stdout_buffered = false,
+      on_stdout = function(chan_id, data, name)
+        for _, line in ipairs(data) do
+          line = last .. line
+          local port = line:match('Listening for transport dt_socket at address: (%d+)')
+          if port then
+            callback({ type = 'java', port = port })
+          elseif not line:match('\r$') and not line:match('\n$') then
+            last = line
+          end
         end
       end,
+      term = true,
     })
+
+    if chan_id == 0 then
+      vim.notify('Could not start fabric-loom debugee: invalid arguments')
+    elseif chan_id == -1 then
+      vim.notify('Could not start fabric-loom debugee: ./gradlew is not executable')
+    elseif not dap.defaults.fallback.focus_terminal then
+      vim.cmd.wincmd('p')
+    end
   end
 
   dap.providers.configs['minecraft-dev'] = function(bufnr)
