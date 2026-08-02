@@ -21,6 +21,7 @@ function M.setup(opts)
   dap.setup()
 
   vim.api.nvim_create_autocmd('FileType', {
+    group = vim.api.nvim_create_augroup('minecraft-dev', { clear = true }),
     pattern = cfg.options.filetypes,
     callback = function(a)
       local root_dir = util.find_root(a.buf)

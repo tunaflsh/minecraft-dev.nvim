@@ -13,7 +13,7 @@ M.options = {
   quickfixtextfunc = true,
   win_config = nil,
   env = {},
-  jdtls_config = {},
+  jdtls_config = { cmd = { 'jdtls' } },
 }
 
 return M

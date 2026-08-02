@@ -29,13 +29,20 @@ function M.check()
   end
 
   vim.health.start('minecraft-dev: nvim-jdtls')
-  if pcall(require, 'jdtls') then
-    vim.health.ok('')
-  else
+  if not pcall(require, 'jdtls') then
     vim.health.error(table.concat({
       '*nvim-jdtls* not found',
       'https://codeberg.org/mfussenegger/nvim-jdtls',
     }, '\n'))
+  end
+  if vim.fn.executable('jdtls') == 1 then
+    vim.health.ok('*jdtls*')
+  else
+    vim.health.error(table.concat(vim.iter({
+      '*jdtls* not found',
+      'Install via mason.nvim or directly',
+      'https://github.com/eclipse/eclipse.jdt.ls',
+    }):totable(), '\n'))
   end
 
   vim.health.start('minecraft-dev: nvim-dap')
@@ -49,10 +56,10 @@ function M.check()
     vim.health.info(table.concat(vim.iter({
       '*java-debug-adapter*' .. (ok and ' ' or ' not ') .. 'found',
       not ok and 'Install via mason.nvim or directly' or nil,
-      'https://github.com/microsoft/java-debug',
+      not ok and 'https://github.com/microsoft/java-debug' or nil,
       'This plugin lets you use .vscode/launch.json (not recommended).',
-      'The built-in debug adapter launches the game via gradlew directly',
-      'to ensure consistency with Gradle.',
+      'The built-in debug adapter launches the game via gradlew directly to ensure',
+      'consistency with Gradle.',
     }):totable(), '\n'))
 
     ok = bundles
@@ -80,7 +87,7 @@ function M.check()
     vim.health.info(table.concat(vim.iter({
       '*java-test*' .. (ok and ' ' or ' not ') .. 'found',
       not ok and 'Install via mason.nvim or directly' or nil,
-      'https://github.com/microsoft/vscode-java-test',
+      not ok and 'https://github.com/microsoft/vscode-java-test' or nil,
       'https://codeberg.org/mfussenegger/nvim-jdtls#vscode-java-test-configuration',
     }):totable(), '\n'))
   end
@@ -92,13 +99,14 @@ function M.check()
       'https://github.com/JavaHello/java-deps.nvim',
       'https://github.com/g0ne150/java-deps.nvim',
     }, '\n'))
+  elseif bundles and found(bundles, 'com.microsoft.jdtls.ext.core') then
+    vim.health.ok('*vscode-java-dependency*')
   else
-    ok = bundles and found(bundles, 'com.microsoft.jdtls.ext.core')
-    vim.health[ok and 'ok' or 'warn'](table.concat(vim.iter({
+    vim.health.warn(table.concat({
       '*vscode-java-dependency*' .. (ok and '' or ' not found'),
-      not ok and 'Install via mason.nvim or directly' or nil,
+      'Install via mason.nvim or directly',
       'https://github.com/Microsoft/vscode-java-dependency',
-    }):totable(), '\n'))
+    }, '\n'))
   end
 end
 
