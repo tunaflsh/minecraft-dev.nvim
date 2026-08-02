@@ -12,10 +12,22 @@ function M.setup()
 
     local name = '[minecraft-dev] ' .. config.taskName
     local buf = vim.fn.bufnr(name, 1)
-    if cfg.options.win_config then
-      vim.api.nvim_open_win(buf, true, cfg.options.win_config)
+    local old_win = vim.api.nvim_get_current_win()
+    local win = vim.iter(vim.api.nvim_list_wins())
+        :find(function(winid)
+          return vim.startswith(vim.fn.bufname(vim.api.nvim_win_get_buf(winid)), '[minecraft-dev] ')
+        end)
+
+    if win then
+      vim.api.nvim_set_current_win(win)
+    else
+      if cfg.options.win_config then
+        win = vim.api.nvim_open_win(buf, true, cfg.options.win_config)
+      else
+        win = old_win
+      end
+      vim.api.nvim_win_set_buf(win, buf)
     end
-    vim.api.nvim_win_set_buf(0, buf)
 
     local last = ''
     local chan_id = vim.fn.jobstart({ './gradlew', '--console', 'colored', config.taskName, '--debug-jvm' }, {
@@ -46,7 +58,7 @@ function M.setup()
     else
       vim.api.nvim_buf_set_name(buf, name)
       if not dap.defaults.fallback.focus_terminal then
-        vim.cmd.wincmd('p')
+        vim.api.nvim_set_current_win(old_win)
       end
     end
   end
