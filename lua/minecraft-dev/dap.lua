@@ -2,6 +2,7 @@ local cfg = require('minecraft-dev.config')
 local util = require('minecraft-dev.util')
 
 local dap = require('dap')
+local jdtls_util = require('jdtls.util')
 
 local M = {}
 
@@ -26,7 +27,10 @@ function M.setup()
           line = last .. line
           local port = line:match('Listening for transport dt_socket at address: (%d+)')
           if port then
-            callback({ type = 'java', port = port })
+            config.request = 'attach'
+            config.port = port
+            config.cwd = root_dir
+            dap.adapters.java(callback, config)
           elseif not line:match('\r$') and not line:match('\n$') then
             last = line
           end
