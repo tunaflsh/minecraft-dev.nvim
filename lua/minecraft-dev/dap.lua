@@ -2,7 +2,6 @@ local cfg = require('minecraft-dev.config')
 local util = require('minecraft-dev.util')
 
 local dap = require('dap')
-local jdtls_util = require('jdtls.util')
 
 local M = {}
 
