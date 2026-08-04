@@ -11,7 +11,7 @@ function M.setup(opts)
   cfg.options = vim.tbl_deep_extend('force', cfg.options, opts or {})
 
   if cfg.options.statusline then
-    vim.o.statusline = cfg.options.statusline:gsub('%%[fFt]', "%%{v:lua.require('minecraft-dev').format_jdt('%0')}")
+    vim.o.statusline = cfg.options.statusline:gsub('%%[fFt]', "%%{v:lua.require('minecraft-dev').format_fname('%0')}")
   end
 
   if cfg.options.quickfixtextfunc then
@@ -39,7 +39,7 @@ end
 
 ---@param fname string `jdt://` URI or `%f`, `%F`, `%t`
 ---@return string classname resolved from `jdt://` URI
-function M.format_jdt(fname)
+function M.format_fname(fname)
   if fname == '%f' then
     fname = vim.fn.expand("%")
   elseif fname == '%F' then
@@ -47,7 +47,11 @@ function M.format_jdt(fname)
   elseif fname == '%t' then
     fname = vim.fn.expand("%:t")
   end
-  return fname:match('^jdt://.*/([^/]*/[^/]*)?=') or fname
+  local fullname = vim.fn.fnamemodify(fname, ':p')
+  return fullname:match('^jdt://.*/([^/]*/[^/]*)?=')
+      or fullname:match('java/(.*%.java)$')
+      or fullname:match('java/(.*%.class)$')
+      or fname
 end
 
 function M.quickfixtextfunc(arg)
@@ -61,7 +65,7 @@ function M.quickfixtextfunc(arg)
   local lines = {}
   for i = arg.start_idx, arg.end_idx do
     local item = items[i]
-    local fname = M.format_jdt(vim.fn.bufname(item.bufnr))
+    local fname = M.format_fname(vim.fn.bufname(item.bufnr))
     local lnum = item.lnum or ''
     local col = item.col or ''
     local text = vim.trim(item.text or '')
