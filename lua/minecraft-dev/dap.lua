@@ -55,6 +55,7 @@ function M.setup()
     else
       pcall(vim.api.nvim_buf_delete, vim.fn.bufnr(name), { force = true })
       vim.api.nvim_buf_set_name(buf, name)
+      vim.cmd.normal('G')
       if not dap.defaults.fallback.focus_terminal then
         vim.api.nvim_set_current_win(old_win)
       end
