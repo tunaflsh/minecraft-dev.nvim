@@ -8,7 +8,7 @@ local M = {}
 ---@field env? table<string,string|number> Set environment variables for launching Minecraft
 ---@field jdtls_config? vim.lsp.Config config passed to jdtls. Default: { cmd = { 'jdtls', '-data', '{root_dir}-{hash}' } }
 M.options = {
-  filetypes = { 'java', 'groovy', 'kotlin', 'jproperties' },
+  filetypes = { 'java', 'groovy', 'kotlin', 'jproperties', 'json' },
   statusline = nil,
   quickfixtextfunc = true,
   win_config = nil,
