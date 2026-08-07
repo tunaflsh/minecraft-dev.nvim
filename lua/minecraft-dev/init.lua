@@ -49,6 +49,7 @@ function M.format_fname(fname)
   end
   local fullname = vim.fn.fnamemodify(fname, ':p')
   return fullname:match('^jdt://.*/([^/]*/[^/]*)?=')
+      or fullname:match('^%w+://.*')
       or fullname:match('java/(.*%.java)$')
       or fullname:match('java/(.*%.class)$')
       or fname
