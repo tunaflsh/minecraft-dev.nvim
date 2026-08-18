@@ -6,12 +6,12 @@ local jdtls_util = require('jdtls.util')
 local M = {}
 
 ---@param bufnr number
----@return string root_dir
+---@return string? root_dir
 function M.find_root(bufnr)
   return vim.fs.root(bufnr, {
-    { "mvnw", "gradlew", "settings.gradle", "settings.gradle.kts", ".git" },
+    { "mvnw", "gradlew", "settings.gradle", "settings.gradle.kts" },
     { "build.xml", "pom.xml", "build.gradle", "build.gradle.kts" },
-  }) or vim.uv.cwd() or ''
+  }) or nil
 end
 
 ---@param name string

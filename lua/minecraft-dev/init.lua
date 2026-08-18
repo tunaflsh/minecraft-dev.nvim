@@ -26,13 +26,15 @@ function M.setup(opts)
     pattern = cfg.options.filetypes,
     callback = function(a)
       local root_dir = util.find_root(a.buf)
-      local project_dir = vim.fn.fnamemodify(root_dir, ':t')
-      local hash = vim.fn.sha256(root_dir):sub(1, 16)
-      local config = vim.deepcopy(cfg.options.jdtls_config)
-      if type(config.cmd) == 'table' then
-        vim.list_extend(config.cmd, { '-data', vim.fn.stdpath('cache') .. '/jdtls/' .. project_dir .. '-' .. hash })
+      if root_dir then
+        local project_dir = vim.fn.fnamemodify(root_dir, ':t')
+        local hash = vim.fn.sha256(root_dir):sub(1, 16)
+        local config = vim.deepcopy(cfg.options.jdtls_config)
+        if type(config.cmd) == 'table' then
+          vim.list_extend(config.cmd, { '-data', vim.fn.stdpath('cache') .. '/jdtls/' .. project_dir .. '-' .. hash })
+        end
+        jdtls.start_or_attach(config)
       end
-      jdtls.start_or_attach(config)
     end,
   })
 end
