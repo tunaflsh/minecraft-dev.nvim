@@ -86,4 +86,22 @@ M.asmify = util.asm('asmify', 'org.objectweb.asm.util.ASMifier', 'java')
 ---@type function
 M.bytecode = util.asm('bytecode', 'org.objectweb.asm.util.Textifier', 'asm-java')
 
+M.setup_new_project = function()
+  local root_dir = util.find_root(0)
+  if root_dir then
+    local args = { "./gradlew", "genSources" }
+    vim.system(args, { cwd = root_dir, text = true, }, function(obj)
+      if obj.code ~= 0 then
+        vim.schedule_wrap(vim.notify)(table.concat(args, " ") .. "\n" .. obj.stderr, vim.log.levels.ERROR)
+        return
+      end
+      args = { "./gradlew", "eclipse" }
+      local obj = vim.system(args, { cwd = root_dir, text = true }):wait()
+      if obj.code ~= 0 then
+        vim.schedule_wrap(vim.notify)(table.concat(args, " ") .. "\n" .. obj.stderr, vim.log.levels.ERROR)
+      end
+    end)
+  end
+end
+
 return M
